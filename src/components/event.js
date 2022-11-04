@@ -1,13 +1,34 @@
 import "./style.css";
 import React, { useState, useEffect } from "react";
+import {useNavigate} from "react-router-dom"
 import EventCard from "./EventCard";
+import { GoogleLogin } from 'react-google-login';
 // import GoogleLoginPage from "./GoogleLoginPage";
 // import EventFAB from "./EventFAB";
 import './Fab.css';
+
+const clientId = "868476725043-56q2l17h7bf2a1fpvkqp04t5br7mti4p.apps.googleusercontent.com"
+const scope='https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/user.addresses.read https://www.googleapis.com/auth/user.organization.read'
+
 function Event() {
+  const navigate = useNavigate()
   const [active, setActive] = useState(false);
   const [choosed, setChoosed] = useState(-1);
   const [isinittial, setIsinittial] = useState(false);
+
+
+  const onGoogleLoginSuccess = (res) => {
+    console.log("SUCCESS!!! Current User: ", res);
+    window.sessionStorage.setItem("profileData", JSON.stringify(res.profileObj));
+    window.sessionStorage.setItem("tokenId", res.tokenId);
+    navigate("/register", {state: { profileData: res.profileObj, token: res.tokenId}})
+}
+
+const onGoogleLoginFailure = (res) => {
+    console.log("FAILURE!!! res: ", res);
+}
+
+
   const toggle = () => {
     document
       .getElementsByClassName("event-detais-card")[0]
@@ -239,6 +260,21 @@ function Event() {
           </div>
           <div className="fab-circular-ring"></div>
         </div>
+      </div>
+      <div className="register-button">
+        {/* <Link to="/register">Register</Link>
+         */}
+         <GoogleLogin
+              accessType="online"
+              disabled={false}
+              client_id={clientId}  // your Google app client ID
+              buttonText="Sign in with Google"
+              onSuccess={onGoogleLoginSuccess} // perform your user logic here
+              onFailure={onGoogleLoginFailure} // handle errors here
+              cookiePolicy={"single-host-origin"}
+              isSignedIn={true}
+              scope={scope}
+          />
       </div>
     </>
   );
